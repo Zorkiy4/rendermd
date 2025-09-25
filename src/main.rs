@@ -86,7 +86,7 @@ fn render_markdown(content: &str, args: &Args) -> Result<()> {
         let skin = if args.minimal {
             MadSkin::no_style()
         } else {
-            MadSkin::default_dark()
+            MadSkin::no_style()
         };
 
         let fmt_text = FmtText::from_text(&skin, content.into(), Some(terminal_width));
