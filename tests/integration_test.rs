@@ -71,3 +71,54 @@ fn test_raw_output() {
     assert!(stdout.contains("**bold**"));
     assert!(stdout.contains("`inline code`"));
 }
+
+#[test]
+fn test_invalid_width() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "--width", "5", "test_sample.md"])
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(!output.status.success());
+    let stderr = str::from_utf8(&output.stderr).unwrap();
+    assert!(stderr.contains("Width must be at least 20"));
+}
+
+#[test]
+fn test_width_too_large() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "--width", "300", "test_sample.md"])
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(!output.status.success());
+    let stderr = str::from_utf8(&output.stderr).unwrap();
+    assert!(stderr.contains("Width cannot exceed 200"));
+}
+
+#[test]
+fn test_nonexistent_file() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "nonexistent_file.md"])
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(!output.status.success());
+    let stderr = str::from_utf8(&output.stderr).unwrap();
+    assert!(stderr.contains("Cannot access file") || stderr.contains("Failed to read file"));
+}
+
+#[test]
+fn test_no_color_flag() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "--no-color", "test_sample.md"])
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    // No-color output should not contain ANSI escape codes
+    assert!(!stdout.contains("[38;5;"));
+    assert!(!stdout.contains("\x1b["));
+    assert!(stdout.contains("Hello RenderMD"));
+}

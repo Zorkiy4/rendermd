@@ -3,9 +3,9 @@ name = "rendermd"
 version = "0.1.0"
 edition = "2024"
 description = "A fast, cross-platform CLI tool that renders markdown from stdin with rich terminal formatting"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["RenderMD Contributors"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/yourusername/rendermd"
+repository = "https://github.com/Zorkiy4/rendermd"
 keywords = ["markdown", "terminal", "cli", "rendering"]
 categories = ["command-line-utilities", "text-processing"]
 

@@ -61,8 +61,23 @@ async fn main() -> Result<()> {
 }
 
 async fn read_file(path: &PathBuf) -> Result<String> {
-    tokio::fs::read_to_string(path).await
-        .with_context(|| format!("Failed to read file: {}", path.display()))
+    // Check file size limit (100MB)
+    let metadata = tokio::fs::metadata(path).await
+        .with_context(|| format!("Cannot access file: {}", path.display()))?;
+
+    if metadata.len() > 100 * 1024 * 1024 {
+        anyhow::bail!("File too large ({}MB). Maximum supported size is 100MB", metadata.len() / 1024 / 1024);
+    }
+
+    let content = tokio::fs::read_to_string(path).await
+        .with_context(|| format!("Failed to read file: {}", path.display()))?;
+
+    // Check if content looks like binary data
+    if content.chars().any(|c| c == '\0' || (c.is_control() && c != '\n' && c != '\r' && c != '\t')) {
+        anyhow::bail!("File appears to contain binary data. Only text files are supported");
+    }
+
+    Ok(content)
 }
 
 async fn read_stdin() -> Result<String> {
@@ -75,6 +90,12 @@ async fn read_stdin() -> Result<String> {
 
 fn render_markdown(content: &str, args: &Args) -> Result<()> {
     let terminal_width = if let Some(width) = args.width {
+        if width < 20 {
+            anyhow::bail!("Width must be at least 20 characters");
+        }
+        if width > 200 {
+            anyhow::bail!("Width cannot exceed 200 characters");
+        }
         width as usize
     } else {
         terminal::size()
@@ -84,8 +105,13 @@ fn render_markdown(content: &str, args: &Args) -> Result<()> {
 
     if args.no_color || args.minimal {
         let skin = if args.minimal {
-            MadSkin::no_style()
+            // Minimal: basic formatting but no colors
+            let mut skin = MadSkin::no_style();
+            skin.bold.set_fg(Color::Reset);
+            skin.italic.set_fg(Color::Reset);
+            skin
         } else {
+            // No color: completely plain text
             MadSkin::no_style()
         };
 

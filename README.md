@@ -9,14 +9,14 @@ A fast, cross-platform CLI tool that renders markdown from stdin or files with r
 - **Pipeline friendly** - Reads from stdin by default
 - **Rich formatting** - Syntax highlighting, colors, and proper typography
 - **Configurable output** - Multiple styling options and width control
-- **Zero dependencies** - Self-contained binary
+- **Minimal dependencies** - Self-contained binary with carefully chosen dependencies
 
 ## Installation
 
 Build from source:
 
 ```bash
-git clone https://github.com/yourusername/rendermd
+git clone https://github.com/Zorkiy4/rendermd
 cd rendermd
 cargo build --release
 ```
@@ -105,7 +105,7 @@ rendermd --minimal README.md
 ## Building
 
 Requirements:
-- Rust 2021 edition or later
+- Rust 2024 edition (1.85.0+)
 - Cargo
 
 Build instructions:
